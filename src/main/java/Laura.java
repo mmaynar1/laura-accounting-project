@@ -9,6 +9,8 @@ import org.apache.poi.ss.util.CellReference;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Laura
 {
@@ -33,22 +35,31 @@ public class Laura
 
    private void processWorkbook( Workbook workbook, FormulaEvaluator evaluator )
    {
+      List<Company> companies = new ArrayList<Company>();
       for ( int i = 0; i < workbook.getNumberOfSheets(); i++ )
       {
          Sheet sheet = workbook.getSheetAt( i );
-         System.out.println( sheet.toString() );
-         Company company = new Company();
+         Company company = new Company( sheet.getSheetName() );
          for ( Row row : sheet )
          {
             populateCompany( evaluator, company, row );
          }
+         companies.add( company );
+      }
 
+      print( companies );
+   }
+
+   private void print( List<Company> companies )
+   {
+      for ( Company company : companies )
+      {
+         System.out.println( "----------" + company.getName() + "----------" );
          System.out.println( round( company.getAssets() ) );
          System.out.println( round( company.getLiabilities() ) );
          System.out.println( round( company.getEquities() ) );
          System.out.println( round( company.getIncomes() ) );
          System.out.println( round( company.getTotal() ) );
-
       }
    }
 
