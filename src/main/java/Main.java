@@ -1,7 +1,8 @@
 public class Main
 {
-   public static void main( String[] args )
-   {
-      new Laura().isCute();
-   }
+    //Start here :)
+    public static void main(String[] args)
+    {
+        new Laura().isCute();
+    }
 }
