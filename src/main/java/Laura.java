@@ -16,12 +16,12 @@ public class Laura
 {
    public static final int COLUMN_M = 12;
 
-   public void isCute()
+   public void isCute( String filePath )
    {
       try
       {
          System.out.println( System.getProperty( "user.dir" ) );
-         Workbook workbook = WorkbookFactory.create( new FileInputStream( "laura.xlsx" ) );
+         Workbook workbook = WorkbookFactory.create( new FileInputStream( filePath ) );
          FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
          workbook.setForceFormulaRecalculation( true );
          processWorkbook( workbook, evaluator );
