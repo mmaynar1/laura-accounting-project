@@ -42,11 +42,11 @@ public class Company
    public void print()
    {
       System.out.println( "----------" + getName() + "----------" );
-      System.out.println( round( getAssets() ) );
-      System.out.println( round( getLiabilities() ) );
-      System.out.println( round( getEquities() ) );
-      System.out.println( round( getIncomes() ) );
-      System.out.println( round( getTotal() ) );
+      System.out.println( "Assets:      " + round( getAssets() ) );
+      System.out.println( "Liabilities: " + round( getLiabilities() ) );
+      System.out.println( "Equity:      " + round( getEquities() ) );
+      System.out.println( "Income:      " + round( getIncomes() ) );
+      System.out.println( "Total:       " + round( getTotal() ) );
    }
 
    private BigDecimal round( BigDecimal value )

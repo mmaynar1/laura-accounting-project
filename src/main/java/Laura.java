@@ -32,6 +32,12 @@ public class Laura
 
    private void processWorkbook( Workbook workbook, FormulaEvaluator evaluator )
    {
+      List<Company> companies = processCompanies(workbook, evaluator);
+
+   }
+
+   private List<Company> processCompanies(Workbook workbook, FormulaEvaluator evaluator )
+   {
       List<Company> companies = new ArrayList<Company>();
       for ( int i = 0; i < workbook.getNumberOfSheets(); i++ )
       {
@@ -49,8 +55,8 @@ public class Laura
          }
 
       }
-
       print( companies );
+      return companies;
    }
 
    private void print( List<Company> companies )
