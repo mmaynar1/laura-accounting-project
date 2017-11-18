@@ -79,6 +79,11 @@ public class Company
       return getAssets().add( getLiabilities() ).add( getEquities() ).add( getIncomes() );
    }
 
+   public String getNumber()
+   {
+      return getName().toUpperCase().replace( Laura.COMPANY + " ", "");
+   }
+
    public String getName()
    {
       return name;

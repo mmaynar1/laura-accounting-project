@@ -12,6 +12,28 @@ public enum AccountType
       this.code = code;
    }
 
+   public static AccountType getFromString(String name)
+   {
+      AccountType type = null;
+      if (name.toUpperCase().contains("ASSET"))
+      {
+         type = Assets;
+      }
+      else if (name.toUpperCase().contains("LIABILIT"))
+      {
+         type = Liabilities;
+      }
+      else if (name.toUpperCase().contains("EQUIT"))
+      {
+         type = Equity;
+      }
+      else if (name.toUpperCase().contains("INCOME"))
+      {
+         type = Income;
+      }
+      return type;
+   }
+
    public static AccountType get( String code )
    {
       code = code.charAt( 0 ) + "";
