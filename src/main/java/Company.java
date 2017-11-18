@@ -1,4 +1,5 @@
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Company
 {
@@ -17,22 +18,58 @@ public class Company
       incomes = BigDecimal.ZERO;
    }
 
-   public void addAsset( BigDecimal asset )
+   public void addAccountType( AccountType accountType, BigDecimal accountTotal )
+   {
+      switch( accountType )
+      {
+         case Assets:
+            addAsset( accountTotal );
+            break;
+         case Liabilities:
+            addLiability( accountTotal );
+            break;
+         case Equity:
+            addEquity( accountTotal );
+            break;
+         case Income:
+            addIncome( accountTotal );
+            break;
+         default:
+            throw new RuntimeException("Invalid account type");
+      }
+   }
+
+   public void print()
+   {
+      System.out.println( "----------" + getName() + "----------" );
+      System.out.println( round( getAssets() ) );
+      System.out.println( round( getLiabilities() ) );
+      System.out.println( round( getEquities() ) );
+      System.out.println( round( getIncomes() ) );
+      System.out.println( round( getTotal() ) );
+   }
+
+   private BigDecimal round( BigDecimal value )
+   {
+      return value.setScale( 2, RoundingMode.HALF_UP );
+   }
+
+   private void addAsset( BigDecimal asset )
    {
       assets = assets.add( asset );
    }
 
-   public void addLiability( BigDecimal liability )
+   private void addLiability( BigDecimal liability )
    {
       liabilities = liabilities.add( liability );
    }
 
-   public void addEquity( BigDecimal equity )
+   private void addEquity( BigDecimal equity )
    {
       equities = equities.add( equity );
    }
 
-   public void addIncome( BigDecimal income )
+   private void addIncome( BigDecimal income )
    {
       incomes = incomes.add( income );
    }

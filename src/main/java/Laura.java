@@ -8,14 +8,11 @@ import org.apache.poi.ss.util.CellReference;
 
 import java.io.FileInputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Laura
 {
-   public static final int COLUMN_M = 12;
-
    public void isCute( String filePath )
    {
       try
@@ -39,12 +36,18 @@ public class Laura
       for ( int i = 0; i < workbook.getNumberOfSheets(); i++ )
       {
          Sheet sheet = workbook.getSheetAt( i );
-         Company company = new Company( sheet.getSheetName() );
-         for ( Row row : sheet )
+         String companyName = sheet.getSheetName();
+
+         if( companyName.toUpperCase().contains("COMPANY"))
          {
-            populateCompany( evaluator, company, row );
+            Company company = new Company( companyName );
+            for (Row row : sheet)
+            {
+               populateCompany(evaluator, company, row);
+            }
+            companies.add( company );
          }
-         companies.add( company );
+
       }
 
       print( companies );
@@ -54,12 +57,7 @@ public class Laura
    {
       for ( Company company : companies )
       {
-         System.out.println( "----------" + company.getName() + "----------" );
-         System.out.println( round( company.getAssets() ) );
-         System.out.println( round( company.getLiabilities() ) );
-         System.out.println( round( company.getEquities() ) );
-         System.out.println( round( company.getIncomes() ) );
-         System.out.println( round( company.getTotal() ) );
+         company.print();
       }
    }
 
@@ -67,43 +65,52 @@ public class Laura
    {
       for ( Cell cell : row )
       {
-         CellReference cellReference = new CellReference( row.getRowNum(), cell.getColumnIndex() );
-         if ( cellReference.formatAsString().contains( "A" ) && cell.getCellType() == 0 )
+         if ( isAccount( cell ) )
          {
-            String accountNumber = (int) cell.getNumericCellValue() + "";
-
-            if ( AccountType.get( accountNumber ) == AccountType.Assets )
-            {
-               BigDecimal accountTotal = getBigDecimal( evaluator, row );
-               company.addAsset( accountTotal );
-            }
-            else if ( AccountType.get( accountNumber ) == AccountType.Liabilities )
-            {
-               BigDecimal accountTotal = getBigDecimal( evaluator, row );
-               company.addLiability( accountTotal );
-            }
-            else if ( AccountType.get( accountNumber ) == AccountType.Equity )
-            {
-               BigDecimal accountTotal = getBigDecimal( evaluator, row );
-               company.addEquity( accountTotal );
-            }
-            else if ( AccountType.get( accountNumber ) == AccountType.Income )
-            {
-               BigDecimal accountTotal = getBigDecimal( evaluator, row );
-               company.addIncome( accountTotal );
-            }
-
+            String accountNumber = getAccountNumber(cell);
+            AccountType accountType = AccountType.get( accountNumber );
+            BigDecimal accountTotal = getAccountTotal( evaluator, row );
+            company.addAccountType( accountType, accountTotal );
          }
       }
    }
 
-   private BigDecimal round( BigDecimal value )
+   private String getAccountNumber(Cell cell)
    {
-      return value.setScale( 2, RoundingMode.HALF_UP );
+      String accountNumber = "";
+      if( cell.getCellType() == Cell.CELL_TYPE_STRING)
+      {
+         accountNumber = cell.getStringCellValue();
+      }
+      else if( cell.getCellType() == Cell.CELL_TYPE_NUMERIC)
+      {
+         accountNumber = (int) cell.getNumericCellValue() + "";
+      }
+      else
+      {
+         throw new RuntimeException("Cell type for cell " + new CellReference( cell ).formatAsString() + ": " + cell.getCellType());
+      }
+      return accountNumber;
    }
 
-   private BigDecimal getBigDecimal( FormulaEvaluator evaluator, Row row )
+   private boolean isAccount( Cell cell)
    {
-      return new BigDecimal( evaluator.evaluate( row.getCell( COLUMN_M ) ).formatAsString() );
+      final int accountColumn = 1; //Column B in Excel
+      final int beginningRow = 3;
+      return cell.getRow().getRowNum() >= beginningRow && cell.getColumnIndex() == accountColumn && cell.getCellType() != Cell.CELL_TYPE_BLANK;
+   }
+
+   private BigDecimal getAccountTotal(FormulaEvaluator evaluator, Row row )
+   {
+      final int totalColumn = 15; //Column P in Excel
+      try
+      {
+         return new BigDecimal(evaluator.evaluate(row.getCell(totalColumn)).formatAsString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+      }
+      catch( Exception exception )
+      {
+         System.out.println( "Exception thrown on cell: " + new CellReference( row.getCell(totalColumn) ));
+         throw exception;
+      }
    }
 }
