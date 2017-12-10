@@ -1,15 +1,17 @@
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
 
+import java.awt.*;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Laura
 {
@@ -26,11 +28,21 @@ public class Laura
          workbook.setForceFormulaRecalculation( true );
          processWorkbook( workbook, evaluator );
 
+         saveFile(workbook);
+
       }
       catch ( Exception e )
       {
          e.printStackTrace();
       }
+   }
+
+   private void saveFile(Workbook workbook) throws IOException
+   {
+      DateTimeFormatter timeStampPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+      FileOutputStream outputStream = new FileOutputStream("results" + timeStampPattern.format(LocalDateTime.now()) + ".xlsx" );
+      workbook.write(outputStream);
+      outputStream.close();
    }
 
    private void processWorkbook( Workbook workbook, FormulaEvaluator evaluator )
@@ -58,25 +70,33 @@ public class Laura
       {
          Company company = companies.get(i);
          Company bi360company = bi360Companies.get(i);
-         Company difference = new Company( company.getName());
-
-         difference.addAccountType(AccountType.Assets, bi360company.getAssets().subtract(company.getAssets()));
-         difference.addAccountType(AccountType.Liabilities, bi360company.getLiabilities().subtract(company.getLiabilities()));
-         difference.addAccountType(AccountType.Equity, bi360company.getEquities().subtract(company.getEquities()));
-         difference.addAccountType(AccountType.Income, bi360company.getIncomes().subtract(company.getIncomes()));
+         Company difference = getDifference(company, bi360company);
 
          differences.add(difference);
       }
       return differences;
    }
 
+   private Company getDifference(Company company, Company bi360company)
+   {
+      Company difference = new Company( company.getName());
+
+      difference.addAccountType(AccountType.Assets, bi360company.getAssets().subtract(company.getAssets()));
+      difference.addAccountType(AccountType.Liabilities, bi360company.getLiabilities().subtract(company.getLiabilities()));
+      difference.addAccountType(AccountType.Equity, bi360company.getEquities().subtract(company.getEquities()));
+      difference.addAccountType(AccountType.Income, bi360company.getIncomes().subtract(company.getIncomes()));
+      return difference;
+   }
+
    private List<Company> getBI360Companies(Workbook workbook, FormulaEvaluator evaluator, List<Company> companies)
    {
       List<Company> bi360companies = initializeBI360Companies(companies);
+      Map<Point, String> cellUpdates = new HashMap<>();
 
+      Sheet sheet;
       for ( int i = 0; i < workbook.getNumberOfSheets(); i++ )
       {
-         Sheet sheet = workbook.getSheetAt(i);
+         sheet = workbook.getSheetAt(i);
          String companyName = sheet.getSheetName();
          if( !companyName.toUpperCase().contains(COMPANY))
          {
@@ -91,13 +111,59 @@ public class Laura
                      BigDecimal accountTotal = getValue( evaluator, row, cell.getColumnIndex() + 3 );
                      Company bi360Company = getCompany( companyNumber, bi360companies );
                      bi360Company.addAccountType(accountType, accountTotal);
+                     Company company = getCompany(companyNumber, companies);
+                     Company difference = getDifference(company, bi360Company);
+
+                     int columnIndex = cell.getColumnIndex() + 5;
+                     int rowIndex = row.getRowNum();
+                     String value = "";
+                     switch( accountType )
+                     {
+                        case Assets:
+                           value = difference.getAssets().toString();
+                           break;
+                        case Liabilities:
+                           value = difference.getLiabilities().toString();
+                           break;
+                        case Equity:
+                           value = difference.getEquities().toString();
+                           break;
+                        case Income:
+                           value = difference.getIncomes().toString();
+                           break;
+                     }
+                     cellUpdates.put(new Point(rowIndex, columnIndex), value);
                   }
                }
             }
          }
 
+         updateSpreadsheet(cellUpdates, sheet);
       }
+
       return bi360companies;
+   }
+
+   private void updateSpreadsheet(Map<Point, String> cellUpdates, Sheet sheet)
+   {
+      for( Map.Entry value : cellUpdates.entrySet())
+      {
+         System.out.println(value.getKey() + ", " + value.getValue());
+         int rowIndex = ((Point)value.getKey()).x;
+         int columnIndex = ((Point)value.getKey()).y;
+         Row row = sheet.getRow(rowIndex);
+         if( row == null )
+         {
+            row = sheet.createRow(rowIndex);
+         }
+
+         Cell cell = row.getCell(columnIndex);
+         if( cell == null )
+         {
+            cell = row.createCell(columnIndex);
+         }
+         cell.setCellValue(value.getValue().toString());
+      }
    }
 
    private static String removeLeading(String source, String characters)
@@ -133,14 +199,14 @@ public class Laura
       return source;
    }
 
-   private Company getCompany(String companyNumber, List<Company> bi360companies)
+   private Company getCompany(String companyNumber, List<Company> companies)
    {
       Company company = null;
-      for( Company bi360company : bi360companies )
+      for( Company currentCompany : companies )
       {
-         if( removeLeading(bi360company.getNumber(), "0" ).equals(removeLeading(companyNumber, "0")) )
+         if( removeLeading(currentCompany.getNumber(), "0" ).equals(removeLeading(companyNumber, "0")) )
          {
-            company = bi360company;
+            company = currentCompany;
          }
       }
 
