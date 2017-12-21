@@ -22,13 +22,16 @@ public class Laura
    {
       try
       {
-         System.out.println( System.getProperty( "user.dir" ) );
+         Utility.log( "Starting execution for file " + filePath);
+         Utility.log( System.getProperty( "user.dir" ) );
          Workbook workbook = WorkbookFactory.create( new FileInputStream( filePath ) );
          FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
          workbook.setForceFormulaRecalculation( true );
          processWorkbook( workbook, evaluator );
 
          saveFile(workbook);
+         Utility.log( "Finishing execution for file " + filePath);
+         Utility.log();
 
       }
       catch ( Exception e )
@@ -49,13 +52,13 @@ public class Laura
    {
       List<Company> companies = processCompanies(workbook, evaluator);
       List<Company> bi360Companies = getBI360Companies( workbook, evaluator, companies );
-      System.out.println("----------BI360 Companies----------");
+      Utility.log("----------BI360 Companies----------");
       for( Company company : bi360Companies )
       {
          company.print();
       }
       List<Company> differences = getDifferences( companies, bi360Companies);
-      System.out.println("----------Differences----------");
+      Utility.log("----------Differences----------");
       for( Company difference : differences )
       {
          difference.print();
@@ -94,6 +97,7 @@ public class Laura
       Map<Point, String> cellUpdates = new HashMap<>();
 
       Sheet sheet;
+      Utility.log("----------Cell Updates----------");
       for ( int i = 0; i < workbook.getNumberOfSheets(); i++ )
       {
          sheet = workbook.getSheetAt(i);
@@ -148,9 +152,12 @@ public class Laura
    {
       for( Map.Entry value : cellUpdates.entrySet())
       {
-         System.out.println(value.getKey() + ", " + value.getValue());
-         int rowIndex = ((Point)value.getKey()).x;
-         int columnIndex = ((Point)value.getKey()).y;
+         Point point = (Point)value.getKey();
+         int rowIndex = point.x;
+         int columnIndex = point.y;
+
+         Utility.log("(row,column): (" + rowIndex + "," + columnIndex + "), " + value.getValue());
+
          Row row = sheet.getRow(rowIndex);
          if( row == null )
          {
@@ -249,7 +256,7 @@ public class Laura
          }
 
       }
-      System.out.println("----------Companies----------");
+      Utility.log("----------Companies----------");
       print( companies );
       return companies;
    }
@@ -310,7 +317,7 @@ public class Laura
       }
       catch( Exception exception )
       {
-         System.out.println( "Exception thrown on cell: " + new CellReference( row.getCell(column) ));
+         Utility.log( "Exception thrown on cell: " + new CellReference( row.getCell(column) ));
          throw exception;
       }
    }

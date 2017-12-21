@@ -41,12 +41,12 @@ public class Company
 
    public void print()
    {
-      System.out.println( "----------" + getName() + "----------" );
-      System.out.println( "Assets:      " + round( getAssets() ) );
-      System.out.println( "Liabilities: " + round( getLiabilities() ) );
-      System.out.println( "Equity:      " + round( getEquities() ) );
-      System.out.println( "Income:      " + round( getIncomes() ) );
-      System.out.println( "Total:       " + round( getTotal() ) );
+      Utility.log( "----------" + getName() + "----------" );
+      Utility.log( "Assets:      " + round( getAssets() ) );
+      Utility.log( "Liabilities: " + round( getLiabilities() ) );
+      Utility.log( "Equity:      " + round( getEquities() ) );
+      Utility.log( "Income:      " + round( getIncomes() ) );
+      Utility.log( "Total:       " + round( getTotal() ) );
    }
 
    private BigDecimal round( BigDecimal value )
