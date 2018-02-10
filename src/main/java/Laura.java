@@ -15,8 +15,8 @@ import java.util.Map;
 
 public class Laura
 {
-
    public static final String COMPANY = "COMPANY";
+   public static final String DIRECTORY = "C:/excel-conversion-program/";
 
    public void isCute(String filePath )
    {
@@ -24,7 +24,7 @@ public class Laura
       {
          Utility.log( "Starting execution for file " + filePath);
          Utility.log( System.getProperty( "user.dir" ) );
-         Workbook workbook = WorkbookFactory.create( new FileInputStream( filePath ) );
+         Workbook workbook = WorkbookFactory.create( new FileInputStream( DIRECTORY + filePath ) );
          FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
          workbook.setForceFormulaRecalculation( true );
          processWorkbook( workbook, evaluator );
@@ -43,7 +43,7 @@ public class Laura
    private void saveFile(Workbook workbook) throws IOException
    {
       DateTimeFormatter timeStampPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-      FileOutputStream outputStream = new FileOutputStream("results" + timeStampPattern.format(LocalDateTime.now()) + ".xlsx" );
+      FileOutputStream outputStream = new FileOutputStream( DIRECTORY + "results/results" + timeStampPattern.format(LocalDateTime.now()) + ".xlsx" );
       workbook.write(outputStream);
       outputStream.close();
    }

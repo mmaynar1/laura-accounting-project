@@ -4,9 +4,6 @@ import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Created by mitchm on 12/21/2017.
- */
 public class Utility
 {
     public static void log()
@@ -21,7 +18,7 @@ public class Utility
         {
             //create a temporary file
             DateTimeFormatter timeStampPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            File logFile = new File( "log_" + timeStampPattern.format(LocalDateTime.now()) + ".txt" );
+            File logFile = new File( Laura.DIRECTORY + "logs/log_" + timeStampPattern.format(LocalDateTime.now()) + ".txt" );
             writer = new BufferedWriter( new FileWriter( logFile, true ) );
             writer.write( value );
             writer.newLine();
