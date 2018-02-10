@@ -7,8 +7,8 @@ This program is designed to take an excel file containing accounting data of dif
 2. Create this folder structure on your Windows PC:
 <p align="center"><img src="https://raw.githubusercontent.com/mmaynar1/laura-accounting-project/master/src/main/configuration/directoryStructure.PNG"/></p>
 3. Download the following files and save them in the directory structure shown above.
-<a href="https://github.com/mmaynar1/laura-accounting-project/blob/master/src/main/configuration/example.xlsx">example excel file</a>
-<a href="https://github.com/mmaynar1/laura-accounting-project/blob/master/src/main/configuration/excel-conversion-program.bat">windows batch file</a>
+<a href="https://github.com/mmaynar1/laura-accounting-project/blob/master/src/main/configuration/example.xlsx">example excel file</a>,
+<a href="https://github.com/mmaynar1/laura-accounting-project/blob/master/src/main/configuration/excel-conversion-program.bat">windows batch file</a>,
 <a href="https://github.com/mmaynar1/laura-accounting-project/blob/master/src/main/configuration/laura.jar">executable jar file</a>
 
 ### Running the Program
